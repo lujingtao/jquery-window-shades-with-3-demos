@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Language" content="zh-CN">
+<meta name="Keywords" content="JQ百叶窗效果原理+实践练习">
+<meta name="Description" content="JQ百叶窗效果原理+实践练习">
+<title>JQ百叶窗效果原理+实践练习</title>
+<script type="text/javascript" src="jquery.pack.js"></script>
+
+</head>
+
+<style type="text/css">
+* {margin:0; padding:0; list-style:none; }
+body{ font-size:12px; }
+
+.slideBox{ width:450px; height:230px; overflow:hidden; position:relative; border:1px solid #ddd;  }
+.slideBox .hd{ height:15px; overflow:hidden; position:absolute; right:10px; bottom:10px; z-index:1; }
+.slideBox .hd ul{ overflow:hidden; zoom:1; float:left;  }
+.slideBox .hd ul li{ float:left; margin-right:5px;  width:15px; height:15px; line-height:14px; text-align:center; background:#fff; cursor:pointer; }
+.slideBox .hd ul li.on{ background:#f00; color:#fff; }
+.slideBox .bd{ position:relative; height:100%; z-index:0;   }
+.slideBox .bd img{ width:450px; height:230px; }
+
+.selects{ width:450px; height:20px; line-height:20px;  padding:20px 0; text-align:center;    }
+.selects a{ display:block; width:100px;  border:1px solid #ccc; text-align:center; text-decoration:none; cursor:pointer; float:left; margin-left:10px;  _display:inline; }
+.selects a.on{ background:#333; color:#fff; border:1px solid #000;    }
+</style>
+
+<body>
+<!-- content S -->
+	<div id="demoContent">
+		<div class="effect">
+				<div id="slideBox" class="slideBox">
+					<div class="hd">
+						<ul><li class="on">1</li><li>2</li><li>3</li></ul>
+					</div>
+					<div class="bd">
+							<ul>
+								<li><img src="http://dtop.powereasy.net/SuperSlide/demoEffect/images/ad1.jpg" /></li>
+								<li><img src="http://dtop.powereasy.net/SuperSlide/demoEffect/images/ad2.jpg" /></li>
+								<li><img src="http://dtop.powereasy.net/SuperSlide/demoEffect/images/ad3.jpg" /></li>
+							</ul>
+					</div>
+				</div>
+				<div class="selects">
+					<a effect="effect-z1" class="on">纵向效果1</a>
+					<a effect="effect-z2">纵向效果2</a>
+					<a effect="effect-s1">横向效果1</a>
+					<a effect="effect-s2">横向效果2</a>
+				</div>
+		</div>
+
+<script type="text/javascript">
+
+(function($){
+	var obj = $("#slideBox");
+	var effect = "effect-z1";
+	var btns = obj.find(".hd li");
+	var con = obj.find(".bd ul");
+	var size = con.find("li").size();
+	var curIndex = 0;
+	var w = obj.width();
+	var h = obj.height();
+	var sliceNum=8;
+	var running = true;
+
+	//选择效果
+	$(".selects a").click(function(){ $(this).addClass("on").siblings().removeClass("on"); effect=$(this).attr("effect") });
+
+	obj.find(".bd li").each(function(n){
+		$(this).css({"position":"absolute","top":"0","left":"0","z-index":size-n});
+	});
+
+	//鼠标事件
+	btns.click(function(){
+		if(!running){ return false; }
+		curIndex = btns.index($(this));
+		$(this).addClass("on").siblings().removeClass("on");
+		con.find(".slideClone").remove();
+		doEffect(curIndex);
+	});
+
+	//效果函数
+	var doEffect = function(curNum) {
+			running = false;
+			var sliceW = Math.round(w/sliceNum)+1;
+			var sliceH = Math.round(h/sliceNum)+1;
+
+
+			switch (effect)
+			{
+				case "effect-z1":
+						for(var i = 0; i < sliceNum; i++){
+							var curClone = con.find("li").eq(curNum).clone().appendTo(con).addClass("slideClone").css({width:0,height:h,left:sliceW*i,overflow:"hidden",opacity:0,"z-index":size+1});
+							curClone.find("img").css({"position":"absolute","top":"0","left":-sliceW*i})
+						}
+						con.find(".slideClone").each(function(n){ var ss = $(this);  setTimeout(function(){ ss.animate({ width:sliceW,height:h, opacity:"1" }, 400); }, 70*n ); 	});
+				break;
+
+				case "effect-z2":
+						for(var i = 0; i < sliceNum; i++){
+							var curClone = con.find("li").eq(curNum).clone().appendTo(con).addClass("slideClone").css({width:sliceW,height:0,left:sliceW*i,overflow:"hidden",opacity:0,"z-index":size+1});
+							curClone.find("img").css({"position":"absolute","top":"0","left":-sliceW*i})
+						}
+						con.find(".slideClone").each(function(n){ var ss = $(this);  setTimeout(function(){ ss.animate({ width:sliceW,height:h, opacity:"1" }, 400); }, 70*n ); 	});
+				break;
+
+				case "effect-s1":
+						for(var i = 0; i < sliceNum; i++){
+							var curClone = con.find("li").eq(curNum).clone().appendTo(con).addClass("slideClone").css({width:0,height:sliceH,top:sliceH*i,overflow:"hidden",opacity:0,"z-index":size+1});
+							curClone.find("img").css({"position":"absolute","left":"0","top":-sliceH*i})
+						}
+						con.find(".slideClone").each(function(n){ var ss = $(this);  setTimeout(function(){ ss.animate({ width:w,height:sliceH, opacity:"1" }, 400); }, 70*n ); 	});
+				break;
+
+				case "effect-s2":
+						for(var i = 0; i < sliceNum; i++){
+							var curClone = con.find("li").eq(curNum).clone().appendTo(con).addClass("slideClone").css({width:w,height:0,top:sliceH*i,left:sliceW*i,overflow:"hidden",opacity:0,"z-index":size+1});
+							curClone.find("img").css({"position":"absolute","left":"0","top":-sliceH*i})
+						}
+						con.find(".slideClone").each(function(n){ var ss = $(this);  setTimeout(function(){ ss.animate({ width:w,height:sliceH,left:0, opacity:"1" }, 400); }, 70*n ); 	});
+				break;
+
+			}
+
+
+			//重置z-index
+			setTimeout(function(){
+					for(var i=0; i<size; i++){
+						if(i==curNum){ con.find("li").eq(i).css({"z-index":size}) }
+						else{ con.find("li").eq(i).css({"z-index":1}) }
+					}
+					running=true;
+			}, 70*sliceNum+400 );
+
+	}; //Effect1 E
+
+
+
+})(jQuery);
+</script>
+
+
+	</div>
+<!-- content E -->
+</body>
+</html>
